@@ -16,17 +16,18 @@ const heizgrenze_variable_id = "120/10101/0/0/12096";
  * @param {string} variable address identifier
  *                          each variable is defined by a unique address in the CAN system.
  *                          this address can be determined by evaluating the menu tree {@link "./api-variable-reference.pdf"}
- * @return {string} xml response as plain text
- * @example example response format (simplified) for call with `read("/user/var/120/10101/0/0/12096")`
- *          <eta version="1.0">
- *              <value uri="/user/var/120/10101/0/0/12096">14</value>
- *          </eta>
+ * @return {string} value of the variable
  */
 async function read(variable) {
   const url = `${api_endpoint}:${api_port}/${variable_endpoint}/${variable}`;
 
   const response = await fetch(url);
-  return await response.text();
+  const text = await response.text();
+
+  // extract value of xml string
+  // @todo make this work
+  let matches = xml.match(/value="[\d]+"/gm);
+  return matches.map((m) => m.match(/\d+/)[0])[0];
 }
 
 /**
@@ -38,11 +39,7 @@ async function read(variable) {
  *                          each variable is defined by a unique address in the CAN system.
  *                          this address can be determined by evaluating the menu tree {@link "./api-variable-reference.pdf"}
  * @param {string} value new value to set the variable to
- * @return {string} xml response as plain text
- * @example example response format (simplified) for call with `write("/user/var/120/10101/0/0/12096", "16")`
- *          <eta version="1.0">
- *              <success uri="/user/var/120/10101/0/0/12096"/>
- *          </eta>
+ * @return {boolean} wether the (write) operation was successful
  */
 async function write(variable, value) {
   const url = `${api_endpoint}:${api_port}/${variable_endpoint}/${variable}`;
@@ -50,5 +47,6 @@ async function write(variable, value) {
   const body = `value=${value}`;
 
   const response = await fetch(url, { method: "post", headers, body });
-  return await response.text();
+  const text = await response.text();
+  return text.includes("success");
 }
