@@ -25,7 +25,30 @@ const heizgrenze_variable_id = "120/10101/0/0/12096";
 async function read(variable) {
   const url = `${api_endpoint}:${api_port}/${variable_endpoint}/${variable}`;
 
-  // make api call
   const response = await fetch(url);
+  return await response.text();
+}
+
+/**
+ * (over)writes the value of a specfic variable
+ *
+ * @link ./api-endpoint-reference.pdf section 4.2 for writing variables with the `user/var` resource
+ *
+ * @param {string} variable address identifier
+ *                          each variable is defined by a unique address in the CAN system.
+ *                          this address can be determined by evaluating the menu tree {@link "./api-variable-reference.pdf"}
+ * @param {string} value new value to set the variable to
+ * @return {string} xml response as plain text
+ * @example example response format (simplified) for call with `write("/user/var/120/10101/0/0/12096", "16")`
+ *          <eta version="1.0">
+ *              <success uri="/user/var/120/10101/0/0/12096"/>
+ *          </eta>
+ */
+async function write(variable, value) {
+  const url = `${api_endpoint}:${api_port}/${variable_endpoint}/${variable}`;
+  const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+  const body = `value=${value}`;
+
+  const response = await fetch(url, { method: "post", headers, body });
   return await response.text();
 }
