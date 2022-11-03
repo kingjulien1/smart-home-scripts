@@ -26,7 +26,7 @@ async function read(variable) {
 
   // extract value of xml string
   // @todo make this work
-  let matches = xml.match(/value="[\d]+"/gm);
+  let matches = text.match(/value="[\d]+"/gm);
   return matches.map((m) => m.match(/\d+/)[0])[0];
 }
 
